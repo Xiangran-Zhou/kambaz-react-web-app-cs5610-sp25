@@ -1,3 +1,4 @@
+import { useParams } from "react-router";
 import { BsPlus, BsGripVertical } from "react-icons/bs";
 import { MdAssignment } from "react-icons/md";
 import {
@@ -9,8 +10,11 @@ import {
   Col,
 } from "react-bootstrap";
 import LessonControlButtons from "../Modules/LessonControlButtons";
+import { assignments } from "../../Database";
 
 export default function Assignments() {
+  const { cid } = useParams();
+
   return (
     <div id="wd-assignments" className="p-3">
       {/* Search Bar and Buttons */}
@@ -43,47 +47,34 @@ export default function Assignments() {
           </Button>
         </ListGroup.Item>
 
-        {/* Assignment List */}
-        {[
-          { id: "123", title: "A1 - ENV + HTML", date: "May 6", due: "May 13" },
-          {
-            id: "124",
-            title: "A2 - CSS + BOOTSTRAP",
-            date: "May 13",
-            due: "May 20",
-          },
-          {
-            id: "125",
-            title: "A3 - JAVASCRIPT + REACT",
-            date: "May 20",
-            due: "May 27",
-          },
-        ].map((assignment) => (
-          <ListGroup.Item
-            key={assignment.id}
-            className="wd-lesson p-3 d-flex align-items-center justify-content-between"
-          >
-            <div className="d-flex align-items-center">
-              <BsGripVertical className="me-3 fs-5 text-muted" />
-              <MdAssignment className="fs-4 text-muted me-3" />
-              <div>
-                <a
-                  href={`#/Kambaz/Courses/1234/Assignments/${assignment.id}`}
-                  className="fw-bold text-dark text-decoration-none"
-                >
-                  {assignment.title}
-                </a>
-                <div className="small">
-                  <span className="text-danger">Multiple Modules</span> |{" "}
-                  <strong>Not available until</strong> {assignment.date} at
-                  12:00am | <strong>Due</strong> {assignment.due} at 11:59pm |
-                  100 pts
+        {/* Dynamic Assignment List */}
+        {assignments
+          .filter((assignment) => assignment.course === cid)
+          .map((assignment) => (
+            <ListGroup.Item
+              key={assignment._id}
+              className="wd-lesson p-3 d-flex align-items-center justify-content-between"
+            >
+              <div className="d-flex align-items-center">
+                <BsGripVertical className="me-3 fs-5 text-muted" />
+                <MdAssignment className="fs-4 text-muted me-3" />
+                <div>
+                  <a
+                    href={`#/Kambaz/Courses/${cid}/Assignments/${assignment._id}`}
+                    className="fw-bold text-dark text-decoration-none"
+                  >
+                    {assignment.title}
+                  </a>
+                  <div className="small">
+                    <span className="text-danger">Multiple Modules</span> |{" "}
+                    <strong>Not available until</strong> May 6 at 12:00am |{" "}
+                    <strong>Due</strong> May 13 at 11:59pm | 100 pts
+                  </div>
                 </div>
               </div>
-            </div>
-            <LessonControlButtons />
-          </ListGroup.Item>
-        ))}
+              <LessonControlButtons />
+            </ListGroup.Item>
+          ))}
       </ListGroup>
     </div>
   );

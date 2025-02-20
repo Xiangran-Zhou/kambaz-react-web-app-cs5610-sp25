@@ -1,10 +1,14 @@
+import { useParams } from "react-router";
 import { ListGroup } from "react-bootstrap";
-import ModulesControls from "./ModulesControls";
 import { BsGripVertical } from "react-icons/bs";
-import LessonControlButtons from "./LessonControlButtons";
+import ModulesControls from "./ModulesControls";
 import ModuleControlButtons from "./ModuleControlButtons";
+import LessonControlButtons from "./LessonControlButtons";
+import { modules } from "../../Database";
 
 export default function Modules() {
+  const { cid } = useParams();
+
   return (
     <div>
       <ModulesControls />
@@ -13,59 +17,39 @@ export default function Modules() {
       <br />
       <br />
       <ListGroup className="rounded-0" id="wd-modules">
-        <ListGroup.Item className="wd-module p-0 mb-5 fs-5 border-gray">
-          <div className="wd-title p-3 ps-2 bg-secondary d-flex align-items-center justify-content-between">
-            <span>
-              <BsGripVertical className="me-2 fs-3" /> Week 1
-            </span>
-            <ModuleControlButtons />
-          </div>
-          <ListGroup className="wd-lessons rounded-0">
-            <ListGroup.Item className="wd-lesson p-3 ps-1 d-flex align-items-center justify-content-between">
-              <span>
-                <BsGripVertical className="me-2 fs-3" /> LEARNING OBJECTIVES
-              </span>
-              <LessonControlButtons />
-            </ListGroup.Item>
-            <ListGroup.Item className="wd-lesson p-3 ps-1 d-flex align-items-center justify-content-between">
-              <span>
-                <BsGripVertical className="me-2 fs-3" /> Introduction to the
-                course
-              </span>
-              <LessonControlButtons />
-            </ListGroup.Item>
-            <ListGroup.Item className="wd-lesson p-3 ps-1 d-flex align-items-center justify-content-between">
-              <span>
-                <BsGripVertical className="me-2 fs-3" /> Learn what is Web
-                Development
-              </span>
-              <LessonControlButtons />
-            </ListGroup.Item>
-          </ListGroup>
-        </ListGroup.Item>
+        {modules
+          .filter((module) => module.course === cid)
+          .map((module) => (
+            <ListGroup.Item
+              key={module._id}
+              className="wd-module p-0 mb-5 fs-5 border-gray"
+            >
+              {/* Module Title */}
+              <div className="wd-title p-3 ps-2 bg-secondary d-flex align-items-center justify-content-between">
+                <span>
+                  <BsGripVertical className="me-2 fs-3" /> {module.name}
+                </span>
+                <ModuleControlButtons />
+              </div>
 
-        <ListGroup.Item className="wd-module p-0 mb-5 fs-5 border-gray">
-          <div className="wd-title p-3 ps-2 bg-secondary d-flex align-items-center justify-content-between">
-            <span>
-              <BsGripVertical className="me-2 fs-3" /> Week 2
-            </span>
-            <ModuleControlButtons />
-          </div>
-          <ListGroup className="wd-lessons rounded-0">
-            <ListGroup.Item className="wd-lesson p-3 ps-1 d-flex align-items-center justify-content-between">
-              <span>
-                <BsGripVertical className="me-2 fs-3" /> LESSON 1
-              </span>
-              <LessonControlButtons />
+              {/* Lessons Inside Module */}
+              {module.lessons && (
+                <ListGroup className="wd-lessons rounded-0">
+                  {module.lessons.map((lesson) => (
+                    <ListGroup.Item
+                      key={lesson._id}
+                      className="wd-lesson p-3 ps-1 d-flex align-items-center justify-content-between"
+                    >
+                      <span>
+                        <BsGripVertical className="me-2 fs-3" /> {lesson.name}
+                      </span>
+                      <LessonControlButtons />
+                    </ListGroup.Item>
+                  ))}
+                </ListGroup>
+              )}
             </ListGroup.Item>
-            <ListGroup.Item className="wd-lesson p-3 ps-1 d-flex align-items-center justify-content-between">
-              <span>
-                <BsGripVertical className="me-2 fs-3" /> LESSON 2
-              </span>
-              <LessonControlButtons />
-            </ListGroup.Item>
-          </ListGroup>
-        </ListGroup.Item>
+          ))}
       </ListGroup>
     </div>
   );

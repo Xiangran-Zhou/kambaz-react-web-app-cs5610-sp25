@@ -1,7 +1,12 @@
-import { Form, Button, Row, Col, Dropdown } from "react-bootstrap";
+import { Form, Row, Col, Dropdown } from "react-bootstrap";
 import { useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { assignments } from "../../Database";
 
 export default function AssignmentEditor() {
+  const { cid, aid } = useParams();
+  const assignment = assignments.find((assignment) => assignment._id === aid);
+
   const [assignTo, setAssignTo] = useState("Everyone");
 
   return (
@@ -9,7 +14,10 @@ export default function AssignmentEditor() {
       {/* Assignment Name */}
       <Form.Group className="mb-3">
         <Form.Label className="fw-bold">Assignment Name</Form.Label>
-        <Form.Control type="text" defaultValue="A1 - ENV + HTML" />
+        <Form.Control
+          type="text"
+          defaultValue={assignment?.title || "Untitled Assignment"}
+        />
       </Form.Group>
 
       {/* Assignment Description */}
@@ -18,7 +26,7 @@ export default function AssignmentEditor() {
         <Form.Control
           as="textarea"
           rows={4}
-          defaultValue="The assignment is available online. Submit a link to the landing page of your Web application."
+          defaultValue={assignment?.description || "No description available."}
         />
       </Form.Group>
 
@@ -101,8 +109,18 @@ export default function AssignmentEditor() {
 
       {/* Buttons */}
       <div className="d-flex gap-2">
-        <Button variant="secondary">Cancel</Button>
-        <Button variant="danger">Save</Button>
+        <Link
+          to={`/Kambaz/Courses/${cid}/Assignments`}
+          className="btn btn-secondary"
+        >
+          Cancel
+        </Link>
+        <Link
+          to={`/Kambaz/Courses/${cid}/Assignments`}
+          className="btn btn-danger"
+        >
+          Save
+        </Link>
       </div>
     </div>
   );
