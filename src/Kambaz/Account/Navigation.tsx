@@ -1,23 +1,35 @@
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { RootState } from "../store"; // Adjust path if needed
 
 export default function AccountNavigation() {
+  const { currentUser } = useSelector(
+    (state: RootState) => state.accountReducer
+  );
+
   return (
     <div id="wd-account-navigation">
-      <Link to={`/Kambaz/Account/Signin`} className="text-danger">
-        {" "}
-        Signin{" "}
-      </Link>{" "}
-      <br />
-      <Link to={`/Kambaz/Account/Signup`} className="text-danger">
-        {" "}
-        Signup{" "}
-      </Link>{" "}
-      <br />
-      <Link to={`/Kambaz/Account/Profile`} className="text-danger">
-        {" "}
-        Profile{" "}
-      </Link>{" "}
-      <br />
+      {!currentUser && (
+        <>
+          <div style={{ marginBottom: "0.5rem" }}>
+            <Link to="Signin" className="text-danger">
+              Signin
+            </Link>
+          </div>
+          <div style={{ marginBottom: "0.5rem" }}>
+            <Link to="Signup" className="text-danger">
+              Signup
+            </Link>
+          </div>
+        </>
+      )}
+      {currentUser && (
+        <div style={{ marginBottom: "0.5rem" }}>
+          <Link to="Profile" className="text-danger">
+            Profile
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

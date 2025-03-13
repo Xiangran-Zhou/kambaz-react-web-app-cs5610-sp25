@@ -1,9 +1,16 @@
+import { useSelector } from "react-redux";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { RootState } from "../store"; // Adjust the path if needed
 import Signin from "./Signin";
-import { Routes, Route, Navigate } from "react-router";
-import Profile from "./Profile";
 import Signup from "./Signup";
+import Profile from "./Profile";
 import AccountNavigation from "./Navigation";
+
 export default function Account() {
+  const { currentUser } = useSelector(
+    (state: RootState) => state.accountReducer
+  );
+
   return (
     <div id="wd-account-screen">
       <table>
@@ -14,13 +21,16 @@ export default function Account() {
             </td>
             <td valign="top">
               <Routes>
+                {/* If user is signed in, default to Profile; otherwise, Signin */}
                 <Route
-                  path="/"
-                  element={<Navigate to="/Kambaz/Account/Signin" />}
+                  index
+                  element={
+                    <Navigate to={currentUser ? "Profile" : "Signin"} replace />
+                  }
                 />
-                <Route path="/Signin" element={<Signin />} />
-                <Route path="/Profile" element={<Profile />} />
-                <Route path="/Signup" element={<Signup />} />
+                <Route path="Signin" element={<Signin />} />
+                <Route path="Signup" element={<Signup />} />
+                <Route path="Profile" element={<Profile />} />
               </Routes>
             </td>
           </tr>
