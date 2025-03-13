@@ -32,7 +32,12 @@ import Square from "./Square";
 import Highlight from "./Highlight";
 import AddPathParameters from "./AddPathParameters";
 import PathParameters from "./PathParameters";
+import { useSelector } from "react-redux";
+import { ListGroup } from "react-bootstrap";
+import { RootState } from "../store";
+import { Todo } from "../Lab4/ReduxExamples/todos/todosReducer";
 export default function Lab3() {
+  const { todos } = useSelector((state: RootState) => state.todosReducer);
   console.log("Hello World!");
   return (
     <div>
@@ -78,6 +83,12 @@ export default function Lab3() {
       </Highlight>
       <AddPathParameters />
       <PathParameters />
+      <ListGroup>
+        {todos.map((todo: Todo) => (
+          <ListGroup.Item key={todo.id}>{todo.title}</ListGroup.Item>
+        ))}
+      </ListGroup>
+      <hr />
     </div>
   );
 }
