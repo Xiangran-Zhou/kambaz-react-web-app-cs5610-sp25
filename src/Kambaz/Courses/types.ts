@@ -7,6 +7,5 @@ export interface Course {
   department: string;
   credits: number;
   description: string;
-  author?: string; // only some courses have this
-  image?: string; // optional, since your JSON doesn't include it by default
+  image?: string;
 }

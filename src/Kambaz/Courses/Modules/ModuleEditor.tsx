@@ -1,4 +1,3 @@
-import React from "react";
 import { Modal, FormControl, Button } from "react-bootstrap";
 
 interface ModuleEditorProps {

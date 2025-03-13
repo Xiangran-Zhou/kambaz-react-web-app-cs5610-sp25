@@ -1,6 +1,4 @@
-import { useParams } from "react-router";
-import { BsPlus, BsGripVertical } from "react-icons/bs";
-import { MdAssignment } from "react-icons/md";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   Button,
   InputGroup,
@@ -9,15 +7,30 @@ import {
   Row,
   Col,
 } from "react-bootstrap";
-import LessonControlButtons from "../Modules/LessonControlButtons";
-import { assignments } from "../../Database";
+import { BsPlus, BsGripVertical } from "react-icons/bs";
+import { MdAssignment } from "react-icons/md";
+
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "../../store";
+import { deleteAssignment } from "./reducer";
+import { Assignment } from "./reducer";
 
 export default function Assignments() {
-  const { cid } = useParams();
+  const { cid } = useParams<{ cid: string }>();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const assignments = useSelector(
+    (state: RootState) => state.assignmentsReducer.assignments
+  );
+
+  const onDelete = (assignmentId: string) => {
+    if (window.confirm("Are you sure you want to delete this assignment?")) {
+      dispatch(deleteAssignment(assignmentId));
+    }
+  };
 
   return (
     <div id="wd-assignments" className="p-3">
-      {/* Search Bar and Buttons */}
       <Row className="align-items-center mb-3">
         <Col md={4}>
           <InputGroup>
@@ -31,13 +44,15 @@ export default function Assignments() {
           <Button variant="secondary" className="me-2">
             <BsPlus className="me-1" /> Group
           </Button>
-          <Button variant="danger">
+          <Button
+            variant="danger"
+            onClick={() => navigate(`/Kambaz/Courses/${cid}/Assignments/new`)}
+          >
             <BsPlus className="me-1" /> Assignment
           </Button>
         </Col>
       </Row>
 
-      {/* Assignments Header */}
       <ListGroup className="rounded-0">
         <ListGroup.Item className="p-3 ps-2 bg-light d-flex align-items-center justify-content-between">
           <span className="fw-bold fs-5">ASSIGNMENTS</span>
@@ -47,10 +62,9 @@ export default function Assignments() {
           </Button>
         </ListGroup.Item>
 
-        {/* Dynamic Assignment List */}
         {assignments
-          .filter((assignment) => assignment.course === cid)
-          .map((assignment) => (
+          .filter((assignment: Assignment) => assignment.course === cid)
+          .map((assignment: Assignment) => (
             <ListGroup.Item
               key={assignment._id}
               className="wd-lesson p-3 d-flex align-items-center justify-content-between"
@@ -59,20 +73,28 @@ export default function Assignments() {
                 <BsGripVertical className="me-3 fs-5 text-muted" />
                 <MdAssignment className="fs-4 text-muted me-3" />
                 <div>
-                  <a
-                    href={`#/Kambaz/Courses/${cid}/Assignments/${assignment._id}`}
+                  <Link
+                    to={`/Kambaz/Courses/${cid}/Assignments/${assignment._id}`}
                     className="fw-bold text-dark text-decoration-none"
                   >
                     {assignment.title}
-                  </a>
+                  </Link>
                   <div className="small">
                     <span className="text-danger">Multiple Modules</span> |{" "}
-                    <strong>Not available until</strong> May 6 at 12:00am |{" "}
-                    <strong>Due</strong> May 13 at 11:59pm | 100 pts
+                    <strong>Not available until</strong>{" "}
+                    {assignment.availableFrom} | <strong>Due</strong>{" "}
+                    {assignment.dueDate} | {assignment.points} pts
                   </div>
                 </div>
               </div>
-              <LessonControlButtons />
+              <div>
+                <Button
+                  variant="outline-danger"
+                  onClick={() => onDelete(assignment._id)}
+                >
+                  Delete
+                </Button>
+              </div>
             </ListGroup.Item>
           ))}
       </ListGroup>

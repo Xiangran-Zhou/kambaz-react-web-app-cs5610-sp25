@@ -2,15 +2,22 @@ import KambazNavigation from "./Navigation";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Dashboard from "./Dashboard";
 import Courses from "./Courses";
-import * as db from "./Database";
-import { useState } from "react";
-import { v4 as uuidv4 } from "uuid";
-import { Course } from "./Courses/types";
 import ProtectedRoute from "./Account/ProtectedRoute";
 import Account from "./Account";
+import { useState } from "react";
+import { Course } from "./Courses/types";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "./store";
+import { addCourse, deleteCourse, updateCourse } from "./Courses/reducer";
 
 export default function Kambaz() {
-  const [courses, setCourses] = useState<Course[]>(db.courses);
+  // Get courses from Redux
+  const courses = useSelector(
+    (state: RootState) => state.coursesReducer.courses
+  );
+  const dispatch = useDispatch();
+
+  // Local state for the course in the form (for adding/updating)
   const [course, setCourse] = useState<Course>({
     _id: "1234",
     name: "New Course",
@@ -24,15 +31,27 @@ export default function Kambaz() {
   });
 
   const addNewCourse = () => {
-    setCourses([...courses, { ...course, _id: uuidv4() }]);
+    // Dispatch action without _id; the reducer will add one
+    dispatch(
+      addCourse({
+        name: course.name,
+        number: course.number,
+        startDate: course.startDate,
+        endDate: course.endDate,
+        department: course.department,
+        credits: course.credits,
+        description: course.description,
+        image: course.image,
+      })
+    );
   };
 
-  const deleteCourse = (courseId: string) => {
-    setCourses(courses.filter((c) => c._id !== courseId));
+  const deleteCourseHandler = (courseId: string) => {
+    dispatch(deleteCourse(courseId));
   };
 
-  const updateCourse = () => {
-    setCourses(courses.map((c) => (c._id === course._id ? course : c)));
+  const updateCourseHandler = () => {
+    dispatch(updateCourse(course));
   };
 
   return (
@@ -40,13 +59,8 @@ export default function Kambaz() {
       <KambazNavigation />
       <div className="wd-main-content-offset p-3">
         <Routes>
-          {/* Default path redirects to Dashboard */}
           <Route path="/" element={<Navigate to="Dashboard" />} />
-
-          {/* Fix: Use Account/* instead of a static <h1> */}
           <Route path="Account/*" element={<Account />} />
-
-          {/* Protect Dashboard and Courses with ProtectedRoute */}
           <Route
             path="Dashboard"
             element={
@@ -56,8 +70,8 @@ export default function Kambaz() {
                   course={course}
                   setCourse={setCourse}
                   addNewCourse={addNewCourse}
-                  deleteCourse={deleteCourse}
-                  updateCourse={updateCourse}
+                  deleteCourse={deleteCourseHandler}
+                  updateCourse={updateCourseHandler}
                 />
               </ProtectedRoute>
             }
@@ -70,8 +84,6 @@ export default function Kambaz() {
               </ProtectedRoute>
             }
           />
-
-          {/* Other routes */}
           <Route path="Calendar" element={<h1>Calendar</h1>} />
           <Route path="Inbox" element={<h1>Inbox</h1>} />
         </Routes>

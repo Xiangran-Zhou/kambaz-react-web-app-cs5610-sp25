@@ -4,7 +4,7 @@ export default function EventObject() {
   const [event, setEvent] = useState<Record<string, unknown> | null>(null);
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    console.log("Event captured:", e); // Debugging log
+    console.log("Event captured:", e);
 
     const eventDetails = {
       type: e.type,

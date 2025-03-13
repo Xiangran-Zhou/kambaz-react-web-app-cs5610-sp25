@@ -1,21 +1,25 @@
-import CourseNavigation from "./Navigation";
 import {
+  useParams,
+  useLocation,
   Navigate,
   Route,
   Routes,
-  useParams,
-  useLocation,
 } from "react-router-dom";
-import Modules from "./Modules";
+import { Course } from "./types";
+import { FaAlignJustify } from "react-icons/fa";
+import CourseNavigation from "./Navigation";
 import Home from "./Home";
+import Modules from "./Modules";
 import Assignments from "./Assignments";
 import AssignmentEditor from "./Assignments/Editor";
-import { FaAlignJustify } from "react-icons/fa";
 import PeopleTable from "./People/Table";
-import { Course } from "./types";
 
-export default function Courses({ courses }: { courses: Course[] }) {
-  const { cid } = useParams();
+interface CoursesProps {
+  courses: Course[];
+}
+
+export default function Courses({ courses }: CoursesProps) {
+  const { cid } = useParams<{ cid: string }>();
   const course = courses.find((course) => course._id === cid);
   const { pathname } = useLocation();
 
