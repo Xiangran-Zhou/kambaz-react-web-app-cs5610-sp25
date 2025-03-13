@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { setCurrentUser, User } from "./reducer";
+import { setCurrentUser, User } from "./accountReducer.ts";
 import { useDispatch } from "react-redux";
 import { FormControl, Button } from "react-bootstrap";
 import * as db from "../Database";

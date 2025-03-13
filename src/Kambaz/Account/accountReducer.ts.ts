@@ -1,14 +1,21 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-// Define a User interface. Adjust the properties as needed.
 export interface User {
   _id: string;
   username: string;
   password: string;
+  firstName: string;
+  lastName: string;
+  dob: string;
+  email: string;
   role: string;
+  loginId: string;
+  section: string;
+  lastActivity: string;
+  totalActivity: string;
 }
 
-interface AccountState {
+export interface AccountState {
   currentUser: User | null;
 }
 
@@ -20,7 +27,7 @@ const accountSlice = createSlice({
   name: "account",
   initialState,
   reducers: {
-    setCurrentUser: (state, action: PayloadAction<User>) => {
+    setCurrentUser: (state, action: PayloadAction<User | null>) => {
       state.currentUser = action.payload;
     },
   },

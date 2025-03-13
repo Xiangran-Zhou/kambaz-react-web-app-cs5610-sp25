@@ -3,8 +3,8 @@ import { useSelector } from "react-redux";
 import { RootState } from "../store"; // Adjust path if needed
 
 export default function AccountNavigation() {
-  const { currentUser } = useSelector(
-    (state: RootState) => state.accountReducer
+  const currentUser = useSelector(
+    (state: RootState) => state.accountReducer.currentUser
   );
 
   return (

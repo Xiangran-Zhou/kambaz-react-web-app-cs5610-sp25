@@ -1,14 +1,14 @@
 import { useSelector } from "react-redux";
 import { Routes, Route, Navigate } from "react-router-dom";
-import { RootState } from "../store"; // Adjust the path if needed
+import { RootState } from "../store";
 import Signin from "./Signin";
 import Signup from "./Signup";
-import Profile from "./Profile";
+import Profile from "./Profile"; // This now imports the Profile component
 import AccountNavigation from "./Navigation";
 
 export default function Account() {
-  const { currentUser } = useSelector(
-    (state: RootState) => state.accountReducer
+  const currentUser = useSelector(
+    (state: RootState) => state.accountReducer.currentUser
   );
 
   return (
@@ -21,7 +21,7 @@ export default function Account() {
             </td>
             <td valign="top">
               <Routes>
-                {/* If user is signed in, default to Profile; otherwise, Signin */}
+                {/* Default route: Navigate to Profile if signed in, otherwise Signin */}
                 <Route
                   index
                   element={

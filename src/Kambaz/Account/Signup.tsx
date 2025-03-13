@@ -2,7 +2,7 @@ import { useState } from "react";
 import { FormControl, Button } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { setCurrentUser } from "./reducer";
+import { setCurrentUser } from "./accountReducer.ts";
 import * as db from "../Database";
 
 export default function Signup() {
