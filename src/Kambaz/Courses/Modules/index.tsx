@@ -14,18 +14,24 @@ export default function Modules() {
   const { cid } = useParams<{ cid: string }>();
   const [moduleName, setModuleName] = useState("");
   const { modules } = useSelector((state: RootState) => state.modulesReducer);
+  const { currentUser } = useSelector(
+    (state: RootState) => state.accountReducer
+  );
   const dispatch = useDispatch();
 
   return (
     <div className="wd-modules">
-      <ModulesControls
-        moduleName={moduleName}
-        setModuleName={setModuleName}
-        addModule={() => {
-          dispatch(addModule({ name: moduleName, course: cid! }));
-          setModuleName("");
-        }}
-      />
+      {/* Only FACULTY users can add a new module */}
+      {currentUser?.role === "FACULTY" && (
+        <ModulesControls
+          moduleName={moduleName}
+          setModuleName={setModuleName}
+          addModule={() => {
+            dispatch(addModule({ name: moduleName, course: cid! }));
+            setModuleName("");
+          }}
+        />
+      )}
       <br />
       <br />
       <br />
@@ -41,6 +47,7 @@ export default function Modules() {
               {/* Module Title */}
               <div className="wd-title p-3 ps-2 bg-secondary d-flex align-items-center justify-content-between">
                 <BsGripVertical className="me-2 fs-3" />
+                {/* Show module name or an editing input if in edit mode */}
                 {!module.editing && <span>{module.name}</span>}
                 {module.editing && (
                   <FormControl
@@ -58,17 +65,20 @@ export default function Modules() {
                     defaultValue={module.name}
                   />
                 )}
-                <ModuleControlButtons
-                  moduleId={module._id}
-                  deleteModule={(moduleId: string) =>
-                    dispatch(deleteModule(moduleId))
-                  }
-                  editModule={(moduleId: string) =>
-                    dispatch(editModule(moduleId))
-                  }
-                />
+                {/* Only FACULTY users can see edit/delete controls */}
+                {currentUser?.role === "FACULTY" && (
+                  <ModuleControlButtons
+                    moduleId={module._id}
+                    deleteModule={(moduleId: string) =>
+                      dispatch(deleteModule(moduleId))
+                    }
+                    editModule={(moduleId: string) =>
+                      dispatch(editModule(moduleId))
+                    }
+                  />
+                )}
               </div>
-              {/* Lessons Inside Module */}
+              {/* Lessons inside Module */}
               {module.lessons && (
                 <ListGroup className="wd-lessons rounded-0">
                   {module.lessons.map((lesson) => (

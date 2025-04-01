@@ -79,47 +79,55 @@ export default function Dashboard({
         Dashboard
       </h1>
       <hr />
-      <div className="d-flex justify-content-between align-items-center">
-        <div>
-          <h5>
-            New Course
-            <Button
-              variant="warning"
-              className="ms-2"
-              id="wd-update-course-click"
-              onClick={updateCourse}
-            >
-              Update
+      {currentUser?.role === "FACULTY" ? (
+        <div className="d-flex justify-content-between align-items-center">
+          <div>
+            <h5>
+              New Course
+              <Button
+                variant="warning"
+                className="ms-2"
+                id="wd-update-course-click"
+                onClick={updateCourse}
+              >
+                Update
+              </Button>
+              <Button
+                variant="primary"
+                className="ms-2"
+                id="wd-add-new-course-click"
+                onClick={addNewCourse}
+              >
+                Add
+              </Button>
+            </h5>
+            <FormControl
+              value={course.name}
+              className="mb-2 mt-2"
+              onChange={(e) => setCourse({ ...course, name: e.target.value })}
+            />
+            <FormControl
+              as="textarea"
+              value={course.description}
+              rows={3}
+              onChange={(e) =>
+                setCourse({ ...course, description: e.target.value })
+              }
+            />
+          </div>
+          <div>
+            <Button variant="info" onClick={() => setShowAll(!showAll)}>
+              {showAll ? "Show Enrolled Only" : "Show All Courses"}
             </Button>
-            <Button
-              variant="primary"
-              className="ms-2"
-              id="wd-add-new-course-click"
-              onClick={addNewCourse}
-            >
-              Add
-            </Button>
-          </h5>
-          <FormControl
-            value={course.name}
-            className="mb-2 mt-2"
-            onChange={(e) => setCourse({ ...course, name: e.target.value })}
-          />
-          <FormControl
-            as="textarea"
-            value={course.description}
-            rows={3}
-            onChange={(e) =>
-              setCourse({ ...course, description: e.target.value })
-            }
-          />
+          </div>
         </div>
-        <div>
+      ) : (
+        <div className="d-flex justify-content-end align-items-center">
           <Button variant="info" onClick={() => setShowAll(!showAll)}>
             {showAll ? "Show Enrolled Only" : "Show All Courses"}
           </Button>
         </div>
-      </div>
+      )}
       <hr />
       <h2 id="wd-dashboard-published" className="mb-4">
         Published Courses ({displayedCourses.length})
@@ -144,28 +152,32 @@ export default function Dashboard({
                 >
                   Go
                 </Button>
-                <Button
-                  variant="warning"
-                  className="float-end me-2"
-                  id="wd-edit-course-click"
-                  onClick={(event) => {
-                    event.preventDefault();
-                    setCourse(courseItem);
-                  }}
-                >
-                  Edit
-                </Button>
-                <Button
-                  variant="danger"
-                  className="float-end"
-                  id="wd-delete-course-click"
-                  onClick={(event) => {
-                    event.preventDefault();
-                    deleteCourse(courseItem._id);
-                  }}
-                >
-                  Delete
-                </Button>
+                {currentUser?.role === "FACULTY" && (
+                  <>
+                    <Button
+                      variant="warning"
+                      className="float-end me-2"
+                      id="wd-edit-course-click"
+                      onClick={(event) => {
+                        event.preventDefault();
+                        setCourse(courseItem);
+                      }}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      variant="danger"
+                      className="float-end"
+                      id="wd-delete-course-click"
+                      onClick={(event) => {
+                        event.preventDefault();
+                        deleteCourse(courseItem._id);
+                      }}
+                    >
+                      Delete
+                    </Button>
+                  </>
+                )}
                 <div className="mt-2">
                   {isEnrolled(courseItem._id) ? (
                     <Button

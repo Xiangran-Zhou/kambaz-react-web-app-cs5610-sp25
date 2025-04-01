@@ -12,12 +12,12 @@ export default function AccountNavigation() {
       {!currentUser && (
         <>
           <div style={{ marginBottom: "0.5rem" }}>
-            <Link to="Signin" className="text-danger">
+            <Link to="/Kambaz/Account/Signin" className="text-danger">
               Signin
             </Link>
           </div>
           <div style={{ marginBottom: "0.5rem" }}>
-            <Link to="Signup" className="text-danger">
+            <Link to="/Kambaz/Account/Signup" className="text-danger">
               Signup
             </Link>
           </div>
@@ -25,7 +25,7 @@ export default function AccountNavigation() {
       )}
       {currentUser && (
         <div style={{ marginBottom: "0.5rem" }}>
-          <Link to="Profile" className="text-danger">
+          <Link to="/Kambaz/Account/Profile" className="text-danger">
             Profile
           </Link>
         </div>

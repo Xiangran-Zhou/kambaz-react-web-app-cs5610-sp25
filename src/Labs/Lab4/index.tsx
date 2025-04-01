@@ -11,7 +11,7 @@ import ObjectStateVariable from "./ObjectStateVariable";
 import ArrayStateVariable from "./ArrayStateVariable";
 import ParentStateComponent from "./ParentStateComponent";
 import ReduxExamples from "./ReduxExamples";
-import TodoList from "../Lab3/todos/TodoList";
+import TodoList from "../Lab4/ReduxExamples/todos/TodoList";
 export default function Lab4() {
   function sayHello() {
     alert("Hello");
