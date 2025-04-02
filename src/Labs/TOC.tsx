@@ -1,5 +1,4 @@
 import Nav from "react-bootstrap/Nav";
-// import { Link } from "react-router";
 export default function TOC() {
   return (
     <Nav variant="pills">
@@ -17,6 +16,9 @@ export default function TOC() {
       </Nav.Item>
       <Nav.Item>
         <Nav.Link href="#/Labs/Lab4">Lab 4</Nav.Link>
+      </Nav.Item>
+      <Nav.Item>
+        <Nav.Link href="#/Labs/Lab5">Lab 5</Nav.Link>
       </Nav.Item>
       <Nav.Item>
         <Nav.Link href="#/Kambaz">Kambaz</Nav.Link>
