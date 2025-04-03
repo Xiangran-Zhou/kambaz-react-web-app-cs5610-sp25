@@ -22,7 +22,7 @@ const enrollmentsSlice = createSlice({
       state.enrollments = action.payload;
     },
     enrollCourse: (state, action: PayloadAction<Enrollment>) => {
-      const { user, course } = action.payload; // Removed _id as it's not used here
+      const { user, course } = action.payload;
       const exists = state.enrollments.some(
         (en) => en.user === user && en.course === course
       );

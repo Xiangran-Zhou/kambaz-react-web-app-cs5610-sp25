@@ -32,7 +32,6 @@ export default function EnrollCourseScreen() {
     fetchCourses();
   }, []);
 
-  // Filter courses that the current user is not enrolled in.
   const availableCourses = allCourses.filter((course) => {
     return !enrolledEnrollments.some(
       (enrollment) =>
@@ -43,13 +42,12 @@ export default function EnrollCourseScreen() {
   const handleEnroll = async (courseId: string) => {
     if (!currentUser) return;
     try {
-      // enrollInCourse should return an Enrollment object including an _id.
       const enrollment = await enrollmentsClient.enrollInCourse(
         currentUser._id,
         courseId
       );
       dispatch(enrollCourseAction(enrollment));
-      // Remove the enrolled course from the available list.
+
       setAllCourses((prevCourses) =>
         prevCourses.filter((c) => c._id !== courseId)
       );
