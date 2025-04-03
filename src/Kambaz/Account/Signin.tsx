@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { setCurrentUser, User } from "./accountReducer.ts";
+import { setCurrentUser, User } from "./accountReducer";
 import { useDispatch } from "react-redux";
 import { FormControl, Button } from "react-bootstrap";
-import * as db from "../Database";
+import * as client from "./client";
 
 interface Credentials {
   username: string;
@@ -19,13 +19,9 @@ export default function Signin() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const signin = () => {
-    // Assume db.users is an array of User objects.
-    const user: User | undefined = db.users.find(
-      (u: User) =>
-        u.username === credentials.username &&
-        u.password === credentials.password
-    );
+  // Updated signin function using the RESTful client API.
+  const signin = async () => {
+    const user: User | null = await client.signin(credentials);
     if (!user) return;
     dispatch(setCurrentUser(user));
     navigate("/Kambaz/Dashboard");

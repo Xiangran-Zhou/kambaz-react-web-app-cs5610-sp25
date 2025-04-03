@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   Button,
@@ -11,8 +12,12 @@ import { BsPlus, BsGripVertical } from "react-icons/bs";
 import { MdAssignment } from "react-icons/md";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../store";
-import { deleteAssignment } from "./reducer";
+import {
+  setAssignments,
+  deleteAssignment as deleteAssignmentAction,
+} from "./reducer";
 import { Assignment } from "./reducer";
+import * as assignmentsClient from "./client";
 
 export default function Assignments() {
   const { cid } = useParams<{ cid: string }>();
@@ -26,9 +31,28 @@ export default function Assignments() {
   );
   const isFaculty = currentUser?.role === "FACULTY";
 
-  const onDelete = (assignmentId: string) => {
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const serverAssignments = await assignmentsClient.findAllAssignments(
+          cid
+        );
+        dispatch(setAssignments(serverAssignments));
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchData();
+  }, [cid, dispatch]);
+
+  const onDelete = async (assignmentId: string) => {
     if (window.confirm("Are you sure you want to delete this assignment?")) {
-      dispatch(deleteAssignment(assignmentId));
+      try {
+        await assignmentsClient.deleteAssignment(assignmentId);
+        dispatch(deleteAssignmentAction(assignmentId));
+      } catch (err) {
+        console.error(err);
+      }
     }
   };
 

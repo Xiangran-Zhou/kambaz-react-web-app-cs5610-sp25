@@ -1,9 +1,7 @@
-import { useState } from "react";
 import { Row, Col, Card, Button, FormControl } from "react-bootstrap";
 import { Course } from "./Courses/types";
+import { useSelector } from "react-redux";
 import { RootState } from "./store";
-import { useSelector, useDispatch } from "react-redux";
-import { enrollCourse, unenrollCourse } from "./Courses/Enrollments/reducer";
 import { useNavigate } from "react-router-dom";
 
 const truncateText = (text: string, limit: number): string =>
@@ -27,54 +25,19 @@ export default function Dashboard({
   updateCourse,
 }: DashboardProps) {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const { currentUser } = useSelector(
     (state: RootState) => state.accountReducer
   );
-  const enrollments = useSelector(
-    (state: RootState) => state.enrollmentsReducer.enrollments
-  );
 
-  // Local state: if true, show all courses; if false, show only enrolled courses.
-  const [showAll, setShowAll] = useState<boolean>(false);
+  // All courses returned are already filtered for enrollment.
+  const displayedCourses = courses;
 
-  // Check if the current user is enrolled in a course.
-  const isEnrolled = (courseId: string): boolean => {
-    if (!currentUser) return false;
-    return enrollments.some(
-      (en) => en.user === currentUser._id && en.course === courseId
-    );
-  };
-
-  // Determine courses to display based on toggle state.
-  const displayedCourses = showAll
-    ? courses
-    : courses.filter((c) => isEnrolled(c._id));
-
-  // Handlers for enrollment buttons.
-  const handleEnroll = (courseId: string) => {
-    if (currentUser) {
-      dispatch(enrollCourse({ user: currentUser._id, course: courseId }));
-    }
-  };
-
-  const handleUnenroll = (courseId: string) => {
-    if (currentUser) {
-      dispatch(unenrollCourse({ user: currentUser._id, course: courseId }));
-    }
-  };
-
-  // Handler for the "Go" button. Only navigates if the user is enrolled.
   const handleGo = (courseId: string) => {
-    if (isEnrolled(courseId)) {
-      navigate(`/Kambaz/Courses/${courseId}/Home`);
-    } else {
-      alert("You are not enrolled in this course!");
-    }
+    navigate(`/Kambaz/Courses/${courseId}/Home`);
   };
 
   return (
-    <div id="wd-dashboard" className="container-fluid">
+    <div id="wd-dashboard">
       <h1 id="wd-dashboard-title" className="mt-3">
         Dashboard
       </h1>
@@ -116,15 +79,22 @@ export default function Dashboard({
             />
           </div>
           <div>
-            <Button variant="info" onClick={() => setShowAll(!showAll)}>
-              {showAll ? "Show Enrolled Only" : "Show All Courses"}
+            <Button variant="info" onClick={() => {}}>
+              Show All Courses
             </Button>
           </div>
         </div>
       ) : (
         <div className="d-flex justify-content-end align-items-center">
-          <Button variant="info" onClick={() => setShowAll(!showAll)}>
-            {showAll ? "Show Enrolled Only" : "Show All Courses"}
+          <Button variant="info" onClick={() => {}}>
+            Show All Courses
+          </Button>
+          <Button
+            variant="primary"
+            className="ms-2"
+            onClick={() => navigate("../Enroll")}
+          >
+            Enroll in Courses
           </Button>
         </div>
       )}
@@ -178,23 +148,6 @@ export default function Dashboard({
                     </Button>
                   </>
                 )}
-                <div className="mt-2">
-                  {isEnrolled(courseItem._id) ? (
-                    <Button
-                      variant="danger"
-                      onClick={() => handleUnenroll(courseItem._id)}
-                    >
-                      Unenroll
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="success"
-                      onClick={() => handleEnroll(courseItem._id)}
-                    >
-                      Enroll
-                    </Button>
-                  )}
-                </div>
               </Card.Body>
             </Card>
           </Col>

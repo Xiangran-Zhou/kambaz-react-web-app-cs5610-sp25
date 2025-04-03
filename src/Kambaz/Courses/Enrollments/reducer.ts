@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface Enrollment {
+  _id: string;
   user: string;
   course: string;
 }
@@ -10,8 +11,6 @@ interface EnrollmentsState {
 }
 
 const initialState: EnrollmentsState = {
-  // Optionally initialize from your database, e.g.:
-  // enrollments: db.enrollments as Enrollment[]
   enrollments: [],
 };
 
@@ -22,16 +21,13 @@ const enrollmentsSlice = createSlice({
     setEnrollments: (state, action: PayloadAction<Enrollment[]>) => {
       state.enrollments = action.payload;
     },
-    enrollCourse: (
-      state,
-      action: PayloadAction<{ user: string; course: string }>
-    ) => {
-      const { user, course } = action.payload;
+    enrollCourse: (state, action: PayloadAction<Enrollment>) => {
+      const { user, course } = action.payload; // Removed _id as it's not used here
       const exists = state.enrollments.some(
         (en) => en.user === user && en.course === course
       );
       if (!exists) {
-        state.enrollments.push({ user, course });
+        state.enrollments.push(action.payload);
       }
     },
     unenrollCourse: (

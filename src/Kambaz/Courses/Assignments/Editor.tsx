@@ -3,8 +3,12 @@ import { Form, Button } from "react-bootstrap";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store";
-import { addAssignment, updateAssignment } from "./reducer";
+import {
+  addAssignment as addAssignmentAction,
+  updateAssignment as updateAssignmentAction,
+} from "./reducer";
 import { Assignment } from "./reducer";
+import * as assignmentsClient from "./client";
 
 export default function AssignmentEditor() {
   const { cid, aid } = useParams<{ cid: string; aid?: string }>();
@@ -18,6 +22,7 @@ export default function AssignmentEditor() {
   );
   const isFaculty = currentUser?.role === "FACULTY";
 
+  // Find existing assignment if editing
   const existingAssignment = assignments.find((a) => a._id === aid);
 
   // Local form state
@@ -42,9 +47,8 @@ export default function AssignmentEditor() {
 
   const isEditing = Boolean(existingAssignment);
 
-  const onSave = () => {
+  const onSave = async () => {
     if (!isFaculty) {
-      // In read-only mode, simply navigate back
       navigate(`/Kambaz/Courses/${cid}/Assignments`);
       return;
     }
@@ -58,19 +62,24 @@ export default function AssignmentEditor() {
         availableFrom,
         availableUntil,
       };
-      dispatch(updateAssignment(updated));
-    } else {
-      dispatch(
-        addAssignment({
-          title,
-          description,
-          points,
-          dueDate,
-          availableFrom,
-          availableUntil,
-          course: cid!,
-        })
+      const serverAssignment = await assignmentsClient.updateAssignment(
+        updated
       );
+      dispatch(updateAssignmentAction(serverAssignment));
+    } else {
+      const newAssignmentData = {
+        title,
+        description,
+        points,
+        dueDate,
+        availableFrom,
+        availableUntil,
+        course: cid!,
+      };
+      const created = await assignmentsClient.createAssignment(
+        newAssignmentData
+      );
+      dispatch(addAssignmentAction(created));
     }
     navigate(`/Kambaz/Courses/${cid}/Assignments`);
   };

@@ -2,8 +2,8 @@ import { useState } from "react";
 import { FormControl, Button } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { setCurrentUser } from "./accountReducer.ts";
-import * as db from "../Database";
+import { setCurrentUser } from "./accountReducer";
+import * as client from "./client";
 
 export default function Signup() {
   const dispatch = useDispatch();
@@ -18,25 +18,10 @@ export default function Signup() {
     email: "",
   });
 
-  const signup = () => {
-    // Provide defaults for the missing fields
-    const newUser = {
-      _id: new Date().getTime().toString(),
-      username: user.username,
-      password: user.password,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      dob: "",
-      role: "STUDENT",
-      loginId: "",
-      section: "",
-      lastActivity: new Date().toISOString().split("T")[0],
-      totalActivity: "00:00:00",
-    };
-
-    db.users.push(newUser);
-    dispatch(setCurrentUser(newUser));
+  const signup = async () => {
+    // Post the new user to the RESTful API
+    const currentUser = await client.signup(user);
+    dispatch(setCurrentUser(currentUser));
     navigate("/Kambaz/Account/Profile");
   };
 
@@ -46,27 +31,32 @@ export default function Signup() {
       <FormControl
         className="mb-2"
         placeholder="username"
+        value={user.username}
         onChange={(e) => setUser({ ...user, username: e.target.value })}
       />
       <FormControl
         className="mb-2"
         type="password"
         placeholder="password"
+        value={user.password}
         onChange={(e) => setUser({ ...user, password: e.target.value })}
       />
       <FormControl
         className="mb-2"
         placeholder="First Name"
+        value={user.firstName}
         onChange={(e) => setUser({ ...user, firstName: e.target.value })}
       />
       <FormControl
         className="mb-2"
         placeholder="Last Name"
+        value={user.lastName}
         onChange={(e) => setUser({ ...user, lastName: e.target.value })}
       />
       <FormControl
         className="mb-2"
         placeholder="Email"
+        value={user.email}
         onChange={(e) => setUser({ ...user, email: e.target.value })}
       />
       <Button className="w-100 mb-2" onClick={signup}>

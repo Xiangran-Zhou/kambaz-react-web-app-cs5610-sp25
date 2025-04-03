@@ -1,6 +1,4 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { assignments } from "../../Database";
-import { v4 as uuidv4 } from "uuid";
 
 // Define the Assignment interface
 export interface Assignment {
@@ -15,42 +13,24 @@ export interface Assignment {
   editing?: boolean;
 }
 
-// Define the state shape
+// Define the state shape for assignments
 interface AssignmentsState {
   assignments: Assignment[];
 }
 
 const initialState: AssignmentsState = {
-  assignments: assignments as Assignment[],
+  assignments: [],
 };
 
 const assignmentsSlice = createSlice({
   name: "assignments",
   initialState,
   reducers: {
-    addAssignment: (
-      state,
-      action: PayloadAction<{
-        title: string;
-        description: string;
-        points: number;
-        dueDate: string;
-        availableFrom: string;
-        availableUntil: string;
-        course: string;
-      }>
-    ) => {
-      const newAssignment: Assignment = {
-        _id: uuidv4(),
-        title: action.payload.title,
-        description: action.payload.description,
-        points: action.payload.points,
-        dueDate: action.payload.dueDate,
-        availableFrom: action.payload.availableFrom,
-        availableUntil: action.payload.availableUntil,
-        course: action.payload.course,
-      };
-      state.assignments = [...state.assignments, newAssignment];
+    setAssignments: (state, action: PayloadAction<Assignment[]>) => {
+      state.assignments = action.payload;
+    },
+    addAssignment: (state, action: PayloadAction<Assignment>) => {
+      state.assignments.push(action.payload);
     },
     deleteAssignment: (state, action: PayloadAction<string>) => {
       state.assignments = state.assignments.filter(
@@ -62,7 +42,6 @@ const assignmentsSlice = createSlice({
         a._id === action.payload._id ? action.payload : a
       );
     },
-    // Optionally, you can add an editAssignment reducer to set editing flag
     editAssignment: (state, action: PayloadAction<string>) => {
       state.assignments = state.assignments.map((a) =>
         a._id === action.payload ? { ...a, editing: true } : a
@@ -72,6 +51,7 @@ const assignmentsSlice = createSlice({
 });
 
 export const {
+  setAssignments,
   addAssignment,
   deleteAssignment,
   updateAssignment,
