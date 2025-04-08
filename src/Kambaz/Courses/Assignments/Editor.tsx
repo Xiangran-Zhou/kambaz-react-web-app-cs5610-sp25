@@ -22,7 +22,6 @@ export default function AssignmentEditor() {
   );
   const isFaculty = currentUser?.role === "FACULTY";
 
-  // Find existing assignment if editing
   const existingAssignment = assignments.find((a) => a._id === aid);
 
   // Local form state
