@@ -2,6 +2,7 @@ import axios from "axios";
 import { User } from "./accountReducer";
 import { Course } from "../Courses/types";
 
+// Create axios instance with credentials
 const axiosWithCredentials = axios.create({ withCredentials: true });
 
 export const REMOTE_SERVER = import.meta.env.VITE_REMOTE_SERVER as string;
@@ -51,7 +52,6 @@ export const signout = async (): Promise<void> => {
   return response.data;
 };
 
-// Retrieve courses for the current (logged-in) user.
 export const findMyCourses = async (): Promise<Course[]> => {
   const { data } = await axiosWithCredentials.get(
     `${USERS_API}/current/courses`
@@ -59,11 +59,30 @@ export const findMyCourses = async (): Promise<Course[]> => {
   return data;
 };
 
-// NEW: Create a new course and enroll the current user in it.
+export const findMyEnrollments = async () => {
+  const { data } = await axiosWithCredentials.get(
+    `${USERS_API}/current/enrollments`
+  );
+  return data;
+};
+
+// Create a new course and enroll the current user in it.
 export const createCourse = async (course: Course): Promise<Course> => {
   const { data } = await axiosWithCredentials.post(
     `${USERS_API}/current/courses`,
     course
   );
+  return data;
+};
+
+export const enrollCourse = async (courseId: string) => {
+  const { data } = await axiosWithCredentials.post(`${USERS_API}/enroll`, {
+    courseId,
+  });
+  return data;
+};
+
+export const findAllUsers = async () => {
+  const { data } = await axios.get(USERS_API);
   return data;
 };
