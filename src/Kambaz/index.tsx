@@ -1,16 +1,18 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import KambazNavigation from "./Navigation";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Dashboard from "./Dashboard";
 import Courses from "./Courses";
 import ProtectedRoute from "./Account/ProtectedRoute";
 import Account from "./Account";
 import { Course } from "./Courses/types";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "./store";
 import Session from "./Account/Session";
 import * as userClient from "./Account/client";
 import * as courseClient from "./Courses/client";
+import * as enrollmentsClient from "./Courses/Enrollments/client";
+import { setEnrollments } from "./Courses/Enrollments/reducer";
 import EnrollCourseScreen from "./Courses/Enrollments/EnrollCourseScreen";
 
 export default function Kambaz() {
@@ -19,20 +21,59 @@ export default function Kambaz() {
   const { currentUser } = useSelector(
     (state: RootState) => state.accountReducer
   );
+  const enrollments = useSelector(
+    (state: RootState) => state.enrollmentsReducer.enrollments
+  );
+  const dispatch = useDispatch();
+  const location = useLocation();
 
-  const fetchCourses = async () => {
+  // Use useCallback to memoize the fetch functions
+  const fetchCourses = useCallback(async () => {
+    if (!currentUser) return;
     try {
       const courses = await userClient.findMyCourses();
       setCourses(courses);
     } catch (error) {
-      console.error(error);
+      console.error("Error fetching courses:", error);
     }
-  };
-
-  useEffect(() => {
-    fetchCourses();
   }, [currentUser]);
 
+  const fetchEnrollments = useCallback(async () => {
+    if (!currentUser) return;
+    try {
+      const allEnrollments = await enrollmentsClient.findAllEnrollments();
+      const userEnrollments = allEnrollments.filter(
+        (e) => e.user === currentUser._id
+      );
+      dispatch(setEnrollments(userEnrollments));
+    } catch (error) {
+      console.error("Error fetching enrollments:", error);
+    }
+  }, [currentUser, dispatch]);
+
+  // Fetch initial data when user changes
+  useEffect(() => {
+    if (currentUser) {
+      fetchEnrollments();
+      fetchCourses();
+    }
+  }, [currentUser, fetchEnrollments, fetchCourses]);
+
+  // Refresh courses when enrollments change
+  useEffect(() => {
+    if (currentUser && enrollments.length > 0) {
+      fetchCourses();
+    }
+  }, [enrollments, currentUser, fetchCourses]);
+
+  // Refresh data when returning to Dashboard
+  useEffect(() => {
+    if (location.pathname === "/Kambaz/Dashboard" && currentUser) {
+      fetchCourses();
+    }
+  }, [location.pathname, currentUser, fetchCourses]);
+
+  // Course state and operations
   const [course, setCourse] = useState<Course>({
     _id: "1234",
     name: "New Course",
@@ -111,7 +152,7 @@ export default function Kambaz() {
               path="Enroll"
               element={
                 <ProtectedRoute>
-                  <EnrollCourseScreen />
+                  <EnrollCourseScreen refreshDashboard={fetchCourses} />
                 </ProtectedRoute>
               }
             />

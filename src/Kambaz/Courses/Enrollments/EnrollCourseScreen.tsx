@@ -8,11 +8,16 @@ import * as enrollmentsClient from "./client";
 import { enrollCourse as enrollCourseAction } from "./reducer";
 import { useNavigate } from "react-router-dom";
 
-export default function EnrollCourseScreen() {
+interface EnrollCourseScreenProps {
+  refreshDashboard?: () => void;
+}
+
+export default function EnrollCourseScreen({
+  refreshDashboard,
+}: EnrollCourseScreenProps) {
   const [allCourses, setAllCourses] = useState<Course[]>([]);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
   const currentUser = useSelector(
     (state: RootState) => state.accountReducer.currentUser
   );
@@ -46,35 +51,57 @@ export default function EnrollCourseScreen() {
         currentUser._id,
         courseId
       );
+
+      // Update Redux state
       dispatch(enrollCourseAction(enrollment));
 
+      // Remove the course from available courses
       setAllCourses((prevCourses) =>
         prevCourses.filter((c) => c._id !== courseId)
       );
+
+      // Force refresh dashboard courses if function provided
+      if (refreshDashboard) {
+        refreshDashboard();
+      }
+
+      // Show success message
+      alert("Successfully enrolled in course!");
+
+      // Navigate back to dashboard
+      navigate("/Kambaz/Dashboard");
     } catch (error) {
       console.error("Error enrolling in course:", error);
+      alert("Failed to enroll in course. Please try again.");
     }
   };
 
   return (
     <div className="p-3">
       <h2>Available Courses for Enrollment</h2>
-      <ListGroup>
-        {availableCourses.map((course) => (
-          <ListGroup.Item
-            key={course._id}
-            className="d-flex justify-content-between align-items-center"
-          >
-            <div>
-              <strong>{course.name}</strong>
-              <div>{course.description}</div>
-            </div>
-            <Button variant="primary" onClick={() => handleEnroll(course._id)}>
-              Enroll
-            </Button>
-          </ListGroup.Item>
-        ))}
-      </ListGroup>
+      {availableCourses.length === 0 ? (
+        <p>No courses available for enrollment.</p>
+      ) : (
+        <ListGroup>
+          {availableCourses.map((course) => (
+            <ListGroup.Item
+              key={course._id}
+              className="d-flex justify-content-between align-items-center"
+            >
+              <div>
+                <strong>{course.name}</strong>
+                <div>{course.description}</div>
+              </div>
+              <Button
+                variant="primary"
+                onClick={() => handleEnroll(course._id)}
+              >
+                Enroll
+              </Button>
+            </ListGroup.Item>
+          ))}
+        </ListGroup>
+      )}
       <Button
         variant="secondary"
         className="mt-3"
