@@ -1,7 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { v4 as uuidv4 } from "uuid";
 
-// Define a Lesson type.
 export interface Lesson {
   _id: string;
   name: string;
@@ -9,7 +7,6 @@ export interface Lesson {
   module: string;
 }
 
-// Define a Module type, with an optional editing flag.
 export interface Module {
   _id: string;
   name: string;
@@ -19,7 +16,6 @@ export interface Module {
   editing?: boolean;
 }
 
-// Define the state type for modules.
 interface ModulesState {
   modules: Module[];
 }
@@ -35,18 +31,8 @@ const modulesSlice = createSlice({
     setModules: (state, action: PayloadAction<Module[]>) => {
       state.modules = action.payload;
     },
-    addModule: (
-      state,
-      action: PayloadAction<{ name: string; course: string }>
-    ) => {
-      const newModule: Module = {
-        _id: uuidv4(),
-        lessons: [],
-        name: action.payload.name,
-        course: action.payload.course,
-        description: "",
-      };
-      state.modules = [...state.modules, newModule];
+    addModule: (state, action: PayloadAction<Module>) => {
+      state.modules.push(action.payload);
     },
     deleteModule: (state, action: PayloadAction<string>) => {
       state.modules = state.modules.filter((m) => m._id !== action.payload);

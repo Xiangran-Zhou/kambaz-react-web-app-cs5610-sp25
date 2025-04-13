@@ -9,71 +9,103 @@ import { Course } from "./Courses/types";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "./store";
 import Session from "./Account/Session";
-import * as userClient from "./Account/client";
 import * as courseClient from "./Courses/client";
+import * as userClient from "./Account/client";
 import * as enrollmentsClient from "./Courses/Enrollments/client";
 import { setEnrollments } from "./Courses/Enrollments/reducer";
 import EnrollCourseScreen from "./Courses/Enrollments/EnrollCourseScreen";
+import People from "./Courses/People";
+
+// Define an Enrollment type
+interface Enrollment {
+  _id: string;
+  user: string;
+  course: string;
+  grade?: number;
+  letterGrade?: string;
+  enrollmentDate?: Date;
+  status?: "ENROLLED" | "DROPPED" | "COMPLETED";
+}
 
 export default function Kambaz() {
-  // Initialize courses as an empty array.
   const [courses, setCourses] = useState<Course[]>([]);
   const { currentUser } = useSelector(
     (state: RootState) => state.accountReducer
   );
-  const enrollments = useSelector(
-    (state: RootState) => state.enrollmentsReducer.enrollments
-  );
   const dispatch = useDispatch();
   const location = useLocation();
+  const [enrolling, setEnrolling] = useState<boolean>(false);
 
-  // Use useCallback to memoize the fetch functions
-  const fetchCourses = useCallback(async () => {
+  const findCoursesForUser = useCallback(async (): Promise<void> => {
     if (!currentUser) return;
     try {
-      const courses = await userClient.findMyCourses();
-      setCourses(courses);
+      const fetchedCourses: Course[] = await userClient.findCoursesForUser(
+        currentUser._id
+      );
+      setCourses(fetchedCourses);
     } catch (error) {
-      console.error("Error fetching courses:", error);
+      console.error(error);
     }
   }, [currentUser]);
 
-  const fetchEnrollments = useCallback(async () => {
+  const fetchCourses = useCallback(async (): Promise<void> => {
     if (!currentUser) return;
     try {
-      const allEnrollments = await enrollmentsClient.findAllEnrollments();
+      const allCourses: Course[] = await courseClient.fetchAllCourses();
+      const enrolledCourses: Course[] = await userClient.findCoursesForUser(
+        currentUser._id
+      );
+      const coursesWithEnrollFlag: Course[] = allCourses.map(
+        (course: Course) => {
+          if (enrolledCourses.find((c: Course) => c._id === course._id)) {
+            return { ...course, enrolled: true };
+          }
+          return course;
+        }
+      );
+      setCourses(coursesWithEnrollFlag);
+    } catch (error) {
+      console.error(error);
+    }
+  }, [currentUser]);
+
+  const fetchEnrollments = useCallback(async (): Promise<void> => {
+    if (!currentUser) return;
+    try {
+      const allEnrollments: Enrollment[] =
+        await enrollmentsClient.findAllEnrollments();
       const userEnrollments = allEnrollments.filter(
-        (e) => e.user === currentUser._id
+        (e: Enrollment) => e.user === currentUser._id
       );
       dispatch(setEnrollments(userEnrollments));
     } catch (error) {
-      console.error("Error fetching enrollments:", error);
+      console.error(error);
     }
   }, [currentUser, dispatch]);
 
-  // Fetch initial data when user changes
   useEffect(() => {
     if (currentUser) {
       fetchEnrollments();
-      fetchCourses();
+      if (enrolling) {
+        fetchCourses();
+      } else {
+        findCoursesForUser();
+      }
     }
-  }, [currentUser, fetchEnrollments, fetchCourses]);
+  }, [
+    currentUser,
+    enrolling,
+    fetchEnrollments,
+    fetchCourses,
+    findCoursesForUser,
+  ]);
 
-  // Refresh courses when enrollments change
-  useEffect(() => {
-    if (currentUser && enrollments.length > 0) {
-      fetchCourses();
-    }
-  }, [enrollments, currentUser, fetchCourses]);
-
-  // Refresh data when returning to Dashboard
   useEffect(() => {
     if (location.pathname === "/Kambaz/Dashboard" && currentUser) {
       fetchCourses();
     }
   }, [location.pathname, currentUser, fetchCourses]);
 
-  // Course state and operations
   const [course, setCourse] = useState<Course>({
     _id: "1234",
     name: "New Course",
@@ -86,36 +118,58 @@ export default function Kambaz() {
     image: "",
   });
 
-  const addNewCourse = async () => {
+  const addNewCourse = useCallback(async (): Promise<void> => {
     try {
-      const newCourse = await userClient.createCourse(course);
+      if (!currentUser) return;
+      const newCourse = await courseClient.createCourse(course);
       setCourses([...courses, newCourse]);
     } catch (error) {
       console.error(error);
     }
-  };
+  }, [currentUser, course, courses]);
 
-  // Delete course handler using the courses client.
-  const deleteCourseHandler = async (courseId: string) => {
+  const deleteCourseHandler = useCallback(
+    async (courseId: string): Promise<void> => {
+      try {
+        await courseClient.deleteCourse(courseId);
+        setCourses(courses.filter((c: Course) => c._id !== courseId));
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    [courses]
+  );
+
+  const updateCourseHandler = useCallback(async (): Promise<void> => {
     try {
-      await courseClient.deleteCourse(courseId);
-      setCourses(courses.filter((course) => course._id !== courseId));
+      await courseClient.updateCourse(course);
+      await fetchCourses();
     } catch (error) {
       console.error(error);
     }
-  };
+  }, [course, fetchCourses]);
 
-  // Update course handler: send updated course to server then replace it in local state.
-  const updateCourseHandler = async () => {
-    try {
-      const updatedCourse = await courseClient.updateCourse(course);
-      setCourses(
-        courses.map((c) => (c._id === course._id ? updatedCourse : c))
-      );
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  // updateEnrollment uses a functional state update to correctly toggle enrolled flag
+  const updateEnrollment = useCallback(
+    async (courseId: string, enrolled: boolean): Promise<void> => {
+      if (!currentUser) return;
+      try {
+        if (enrolled) {
+          await userClient.enrollIntoCourse(currentUser._id, courseId);
+        } else {
+          await userClient.unenrollFromCourse(currentUser._id, courseId);
+        }
+        setCourses((prevCourses) =>
+          prevCourses.map((course) =>
+            course._id === courseId ? { ...course, enrolled } : course
+          )
+        );
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    [currentUser]
+  );
 
   return (
     <Session>
@@ -136,7 +190,18 @@ export default function Kambaz() {
                     addNewCourse={addNewCourse}
                     deleteCourse={deleteCourseHandler}
                     updateCourse={updateCourseHandler}
+                    enrolling={enrolling}
+                    setEnrolling={setEnrolling}
+                    updateEnrollment={updateEnrollment}
                   />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="Courses/:cid/People"
+              element={
+                <ProtectedRoute>
+                  <People />
                 </ProtectedRoute>
               }
             />

@@ -1,9 +1,14 @@
+// src/Kambaz/Assignments/client.ts
 import axios from "axios";
 import { Assignment } from "./reducer";
 
 const REMOTE_SERVER = import.meta.env.VITE_REMOTE_SERVER;
 const ASSIGNMENTS_API = `${REMOTE_SERVER}/api/assignments`;
 
+/**
+ * Fetch all assignments.
+ * If a courseId is provided, the endpoint filters assignments by course.
+ */
 export const findAllAssignments = async (
   courseId?: string
 ): Promise<Assignment[]> => {
@@ -15,6 +20,10 @@ export const findAllAssignments = async (
   return data;
 };
 
+/**
+ * Create a new assignment.
+ * The assignment parameter should include at least the title, course, description, etc.
+ */
 export const createAssignment = async (
   assignment: Partial<Assignment>
 ): Promise<Assignment> => {
@@ -22,6 +31,10 @@ export const createAssignment = async (
   return data;
 };
 
+/**
+ * Update an existing assignment.
+ * The entire assignment object including its _id should be provided.
+ */
 export const updateAssignment = async (
   assignment: Assignment
 ): Promise<Assignment> => {
@@ -32,6 +45,9 @@ export const updateAssignment = async (
   return data;
 };
 
+/**
+ * Delete an assignment by its unique ID.
+ */
 export const deleteAssignment = async (assignmentId: string): Promise<void> => {
   await axios.delete(`${ASSIGNMENTS_API}/${assignmentId}`);
 };

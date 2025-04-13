@@ -14,6 +14,14 @@ interface DashboardProps {
   addNewCourse: () => void;
   deleteCourse: (courseId: string) => void;
   updateCourse: () => void;
+  enrolling: boolean;
+  setEnrolling: (enrolling: boolean) => void;
+  updateEnrollment: (courseId: string, enrolled: boolean) => void;
+}
+
+// Extend Course type to include an optional "enrolled" flag.
+interface ExtendedCourse extends Course {
+  enrolled?: boolean;
 }
 
 export default function Dashboard({
@@ -23,14 +31,18 @@ export default function Dashboard({
   addNewCourse,
   deleteCourse,
   updateCourse,
+  enrolling,
+  setEnrolling,
+  updateEnrollment,
 }: DashboardProps) {
   const navigate = useNavigate();
   const { currentUser } = useSelector(
     (state: RootState) => state.accountReducer
   );
 
-  // All courses returned are already filtered for enrollment.
-  const displayedCourses = courses;
+  const displayedCourses: ExtendedCourse[] = courses.map(
+    (c) => c as ExtendedCourse
+  );
 
   const handleGo = (courseId: string) => {
     navigate(`/Kambaz/Courses/${courseId}/Home`);
@@ -40,6 +52,12 @@ export default function Dashboard({
     <div id="wd-dashboard">
       <h1 id="wd-dashboard-title" className="mt-3">
         Dashboard
+        <button
+          onClick={() => setEnrolling(!enrolling)}
+          className="float-end btn btn-primary"
+        >
+          {enrolling ? "My Courses" : "All Courses"}
+        </button>
       </h1>
       <hr />
       {currentUser?.role === "FACULTY" ? (
@@ -147,6 +165,19 @@ export default function Dashboard({
                       Delete
                     </Button>
                   </>
+                )}
+                {enrolling && (
+                  <button
+                    className={`btn float-end ${
+                      courseItem.enrolled ? "btn-danger" : "btn-success"
+                    }`}
+                    onClick={(event) => {
+                      event.preventDefault();
+                      updateEnrollment(courseItem._id, !courseItem.enrolled);
+                    }}
+                  >
+                    {courseItem.enrolled ? "Unenroll" : "Enroll"}
+                  </button>
                 )}
               </Card.Body>
             </Card>

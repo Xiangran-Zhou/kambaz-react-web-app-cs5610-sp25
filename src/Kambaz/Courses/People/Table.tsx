@@ -22,8 +22,8 @@ export default function PeopleTable({ users = [] }: PeopleTableProps) {
           </tr>
         </thead>
         <tbody>
-          {users.map((user: User) => (
-            <tr key={user._id}>
+          {users.map((user: User, index: number) => (
+            <tr key={`${user._id}-${index}`}>
               <td className="wd-full-name text-nowrap">
                 <Link
                   to={`/Kambaz/Account/Users/${user._id}`}

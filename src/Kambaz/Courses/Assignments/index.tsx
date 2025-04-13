@@ -1,3 +1,4 @@
+// src/Kambaz/Assignments/index.tsx
 import { useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import {
@@ -26,10 +27,6 @@ export default function Assignments() {
   const assignments = useSelector(
     (state: RootState) => state.assignmentsReducer.assignments
   );
-  const { currentUser } = useSelector(
-    (state: RootState) => state.accountReducer
-  );
-  const isFaculty = currentUser?.role === "FACULTY";
 
   useEffect(() => {
     const fetchData = async () => {
@@ -71,14 +68,12 @@ export default function Assignments() {
           <Button variant="secondary" className="me-2">
             <BsPlus className="me-1" /> Group
           </Button>
-          {isFaculty && (
-            <Button
-              variant="danger"
-              onClick={() => navigate(`/Kambaz/Courses/${cid}/Assignments/new`)}
-            >
-              <BsPlus className="me-1" /> Assignment
-            </Button>
-          )}
+          <Button
+            variant="danger"
+            onClick={() => navigate(`/Kambaz/Courses/${cid}/Assignments/new`)}
+          >
+            <BsPlus className="me-1" /> Assignment
+          </Button>
         </Col>
       </Row>
 
@@ -86,11 +81,9 @@ export default function Assignments() {
         <ListGroup.Item className="p-3 ps-2 bg-light d-flex align-items-center justify-content-between">
           <span className="fw-bold fs-5">ASSIGNMENTS</span>
           <span className="text-muted fw-bold">40% of Total</span>
-          {isFaculty && (
-            <Button variant="light" className="border">
-              <BsPlus />
-            </Button>
-          )}
+          <Button variant="light" className="border">
+            <BsPlus />
+          </Button>
         </ListGroup.Item>
 
         {assignments
@@ -104,18 +97,12 @@ export default function Assignments() {
                 <BsGripVertical className="me-3 fs-5 text-muted" />
                 <MdAssignment className="fs-4 text-muted me-3" />
                 <div>
-                  {isFaculty ? (
-                    <Link
-                      to={`/Kambaz/Courses/${cid}/Assignments/${assignment._id}`}
-                      className="fw-bold text-dark text-decoration-none"
-                    >
-                      {assignment.title}
-                    </Link>
-                  ) : (
-                    <span className="fw-bold text-dark">
-                      {assignment.title}
-                    </span>
-                  )}
+                  <Link
+                    to={`/Kambaz/Courses/${cid}/Assignments/${assignment._id}`}
+                    className="fw-bold text-dark text-decoration-none"
+                  >
+                    {assignment.title}
+                  </Link>
                   <div className="small">
                     <span className="text-danger">Multiple Modules</span> |{" "}
                     <strong>Not available until</strong>{" "}
@@ -124,16 +111,14 @@ export default function Assignments() {
                   </div>
                 </div>
               </div>
-              {isFaculty && (
-                <div>
-                  <Button
-                    variant="outline-danger"
-                    onClick={() => onDelete(assignment._id)}
-                  >
-                    Delete
-                  </Button>
-                </div>
-              )}
+              <div>
+                <Button
+                  variant="outline-danger"
+                  onClick={() => onDelete(assignment._id)}
+                >
+                  Delete
+                </Button>
+              </div>
             </ListGroup.Item>
           ))}
       </ListGroup>

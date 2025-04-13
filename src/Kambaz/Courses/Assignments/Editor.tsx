@@ -1,3 +1,4 @@
+// src/Kambaz/Assignments/Editor.tsx
 import { useState } from "react";
 import { Form, Button } from "react-bootstrap";
 import { useParams, useNavigate } from "react-router-dom";
@@ -17,14 +18,10 @@ export default function AssignmentEditor() {
   const assignments = useSelector(
     (state: RootState) => state.assignmentsReducer.assignments
   );
-  const { currentUser } = useSelector(
-    (state: RootState) => state.accountReducer
-  );
-  const isFaculty = currentUser?.role === "FACULTY";
-
+  // Removed faculty check so that every logged-in user can use the editor.
   const existingAssignment = assignments.find((a) => a._id === aid);
 
-  // Local form state
+  // Local form state using keys that match your reducer: availableFrom & availableUntil
   const [title, setTitle] = useState(
     existingAssignment ? existingAssignment.title : ""
   );
@@ -47,10 +44,7 @@ export default function AssignmentEditor() {
   const isEditing = Boolean(existingAssignment);
 
   const onSave = async () => {
-    if (!isFaculty) {
-      navigate(`/Kambaz/Courses/${cid}/Assignments`);
-      return;
-    }
+    // Removed faculty check so all users are allowed.
     if (isEditing && existingAssignment) {
       const updated: Assignment = {
         ...existingAssignment,
@@ -95,7 +89,7 @@ export default function AssignmentEditor() {
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          disabled={!isFaculty}
+          // Removed disabled attribute
         />
       </Form.Group>
 
@@ -106,7 +100,7 @@ export default function AssignmentEditor() {
           rows={4}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          disabled={!isFaculty}
+          // Removed disabled attribute
         />
       </Form.Group>
 
@@ -116,7 +110,7 @@ export default function AssignmentEditor() {
           type="number"
           value={points}
           onChange={(e) => setPoints(Number(e.target.value))}
-          disabled={!isFaculty}
+          // Removed disabled attribute
         />
       </Form.Group>
 
@@ -126,7 +120,7 @@ export default function AssignmentEditor() {
           type="date"
           value={dueDate}
           onChange={(e) => setDueDate(e.target.value)}
-          disabled={!isFaculty}
+          // Removed disabled attribute
         />
       </Form.Group>
 
@@ -136,7 +130,7 @@ export default function AssignmentEditor() {
           type="date"
           value={availableFrom}
           onChange={(e) => setAvailableFrom(e.target.value)}
-          disabled={!isFaculty}
+          // Removed disabled attribute
         />
       </Form.Group>
 
@@ -146,19 +140,17 @@ export default function AssignmentEditor() {
           type="date"
           value={availableUntil}
           onChange={(e) => setAvailableUntil(e.target.value)}
-          disabled={!isFaculty}
+          // Removed disabled attribute
         />
       </Form.Group>
 
       <div className="d-flex gap-2">
         <Button variant="secondary" onClick={onCancel}>
-          {isFaculty ? "Cancel" : "Back"}
+          Back
         </Button>
-        {isFaculty && (
-          <Button variant="danger" onClick={onSave}>
-            Save
-          </Button>
-        )}
+        <Button variant="danger" onClick={onSave}>
+          Save
+        </Button>
       </div>
     </div>
   );

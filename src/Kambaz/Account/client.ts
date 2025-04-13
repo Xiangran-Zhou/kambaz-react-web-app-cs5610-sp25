@@ -2,7 +2,6 @@ import axios from "axios";
 import { User } from "./accountReducer";
 import { Course } from "../Courses/types";
 
-// Create axios instance with credentials
 const axiosWithCredentials = axios.create({ withCredentials: true });
 
 export const REMOTE_SERVER = import.meta.env.VITE_REMOTE_SERVER as string;
@@ -19,7 +18,6 @@ export interface SignupUser extends Credentials {
   email: string;
 }
 
-// Define delete response type
 export interface DeleteResult {
   acknowledged?: boolean;
   deletedCount?: number;
@@ -80,11 +78,18 @@ export const createCourse = async (course: Course): Promise<Course> => {
   return data;
 };
 
-export const enrollCourse = async (courseId: string) => {
-  const { data } = await axiosWithCredentials.post(`${USERS_API}/enroll`, {
-    courseId,
-  });
-  return data;
+export const enrollIntoCourse = async (userId: string, courseId: string) => {
+  const response = await axiosWithCredentials.post(
+    `${USERS_API}/${userId}/courses/${courseId}`
+  );
+  return response.data;
+};
+
+export const unenrollFromCourse = async (userId: string, courseId: string) => {
+  const response = await axiosWithCredentials.delete(
+    `${USERS_API}/${userId}/courses/${courseId}`
+  );
+  return response.data;
 };
 
 export const findAllUsers = async () => {
@@ -114,5 +119,12 @@ export const deleteUser = async (userId: string): Promise<DeleteResult> => {
 
 export const createUser = async (user: Omit<User, "_id">): Promise<User> => {
   const response = await axios.post(`${USERS_API}`, user);
+  return response.data;
+};
+
+export const findCoursesForUser = async (userId: string): Promise<Course[]> => {
+  const response = await axiosWithCredentials.get(
+    `${USERS_API}/${userId}/courses`
+  );
   return response.data;
 };
