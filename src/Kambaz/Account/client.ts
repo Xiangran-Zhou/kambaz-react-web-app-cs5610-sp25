@@ -19,6 +19,12 @@ export interface SignupUser extends Credentials {
   email: string;
 }
 
+// Define delete response type
+export interface DeleteResult {
+  acknowledged?: boolean;
+  deletedCount?: number;
+}
+
 export const signin = async (
   credentials: Credentials
 ): Promise<User | null> => {
@@ -66,7 +72,6 @@ export const findMyEnrollments = async () => {
   return data;
 };
 
-// Create a new course and enroll the current user in it.
 export const createCourse = async (course: Course): Promise<Course> => {
   const { data } = await axiosWithCredentials.post(
     `${USERS_API}/current/courses`,
@@ -85,4 +90,29 @@ export const enrollCourse = async (courseId: string) => {
 export const findAllUsers = async () => {
   const { data } = await axios.get(USERS_API);
   return data;
+};
+
+export const findUsersByRole = async (role: string) => {
+  const response = await axios.get(`${USERS_API}?role=${role}`);
+  return response.data;
+};
+
+export const findUsersByPartialName = async (name: string) => {
+  const response = await axios.get(`${USERS_API}?name=${name}`);
+  return response.data;
+};
+
+export const findUserById = async (id: string): Promise<User> => {
+  const response = await axios.get(`${USERS_API}/${id}`);
+  return response.data;
+};
+
+export const deleteUser = async (userId: string): Promise<DeleteResult> => {
+  const response = await axios.delete(`${USERS_API}/${userId}`);
+  return response.data;
+};
+
+export const createUser = async (user: Omit<User, "_id">): Promise<User> => {
+  const response = await axios.post(`${USERS_API}`, user);
+  return response.data;
 };

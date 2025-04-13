@@ -3,7 +3,8 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { RootState } from "../store";
 import Signin from "./Signin";
 import Signup from "./Signup";
-import Profile from "./Profile"; // This now imports the Profile component
+import Profile from "./Profile";
+import Users from "./Users";
 import AccountNavigation from "./Navigation";
 
 export default function Account() {
@@ -21,7 +22,6 @@ export default function Account() {
             </td>
             <td valign="top">
               <Routes>
-                {/* Default route: Navigate to Profile if signed in, otherwise Signin */}
                 <Route
                   index
                   element={
@@ -31,6 +31,8 @@ export default function Account() {
                 <Route path="Signin" element={<Signin />} />
                 <Route path="Signup" element={<Signup />} />
                 <Route path="Profile" element={<Profile />} />
+                <Route path="Users" element={<Users />} />
+                <Route path="Users/:uid" element={<Users />} />
               </Routes>
             </td>
           </tr>
