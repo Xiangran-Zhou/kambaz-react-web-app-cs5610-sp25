@@ -35,7 +35,6 @@ export default function PeopleDetails() {
     const [firstName, ...rest] = name.split(" ");
     const lastName = rest.join(" ") || "";
     const updatedUser = { ...user, firstName, lastName };
-    // Update in DB and get the saved user
     const savedUser = await client.updateUser(updatedUser);
     setUser(savedUser);
     setEditing(false);
