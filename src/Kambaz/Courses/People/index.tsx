@@ -23,7 +23,7 @@ export default function People() {
 
   return (
     <div>
-      <h2>People Enrolled in Course {cid}</h2>
+      <h2>People Enrolled in this Course</h2>
       <PeopleTable users={users} />
     </div>
   );

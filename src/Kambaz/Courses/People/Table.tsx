@@ -2,12 +2,18 @@ import { Table } from "react-bootstrap";
 import { FaUserCircle } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { User } from "../../Account/accountReducer";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store";
 
 interface PeopleTableProps {
   users?: User[];
 }
 
 export default function PeopleTable({ users = [] }: PeopleTableProps) {
+  const { currentUser } = useSelector(
+    (state: RootState) => state.accountReducer
+  );
+
   return (
     <div id="wd-people-table">
       <Table striped>
@@ -25,14 +31,22 @@ export default function PeopleTable({ users = [] }: PeopleTableProps) {
           {users.map((user: User, index: number) => (
             <tr key={`${user._id}-${index}`}>
               <td className="wd-full-name text-nowrap">
-                <Link
-                  to={`/Kambaz/Account/Users/${user._id}`}
-                  className="text-decoration-none"
-                >
-                  <FaUserCircle className="me-2 fs-1 text-secondary" />
-                  <span className="wd-first-name">{user.firstName}</span>{" "}
-                  <span className="wd-last-name">{user.lastName}</span>
-                </Link>
+                {currentUser?.role === "ADMIN" ? (
+                  <Link
+                    to={`/Kambaz/Account/Users/${user._id}`}
+                    className="text-decoration-none"
+                  >
+                    <FaUserCircle className="me-2 fs-1 text-secondary" />
+                    <span className="wd-first-name">{user.firstName}</span>{" "}
+                    <span className="wd-last-name">{user.lastName}</span>
+                  </Link>
+                ) : (
+                  <>
+                    <FaUserCircle className="me-2 fs-1 text-secondary" />
+                    <span className="wd-first-name">{user.firstName}</span>{" "}
+                    <span className="wd-last-name">{user.lastName}</span>
+                  </>
+                )}
               </td>
               <td className="wd-login-id">{user.loginId}</td>
               <td className="wd-section">{user.section}</td>

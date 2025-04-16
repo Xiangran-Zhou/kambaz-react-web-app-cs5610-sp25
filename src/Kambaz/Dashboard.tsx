@@ -134,12 +134,17 @@ export default function Dashboard({
                 <Card.Text className="course-description">
                   {truncateText(courseItem.description, 40)}
                 </Card.Text>
-                <Button
-                  variant="primary"
-                  onClick={() => handleGo(courseItem._id)}
-                >
-                  Go
-                </Button>
+
+                {courseItem.enrolled && (
+                  <Button
+                    variant="primary"
+                    onClick={() => handleGo(courseItem._id)}
+                  >
+                    Go
+                  </Button>
+                )}
+
+                {/* Faculty-only actions: Edit, Delete */}
                 {currentUser?.role === "FACULTY" && (
                   <>
                     <Button
@@ -166,17 +171,17 @@ export default function Dashboard({
                     </Button>
                   </>
                 )}
-                {enrolling && (
+
+                {/* Show Unenroll button only if we are in "enrolling" mode AND the user is already enrolled */}
+                {enrolling && courseItem.enrolled && (
                   <button
-                    className={`btn float-end ${
-                      courseItem.enrolled ? "btn-danger" : "btn-success"
-                    }`}
+                    className="btn btn-danger float-end me-2"
                     onClick={(event) => {
                       event.preventDefault();
-                      updateEnrollment(courseItem._id, !courseItem.enrolled);
+                      updateEnrollment(courseItem._id, false);
                     }}
                   >
-                    {courseItem.enrolled ? "Unenroll" : "Enroll"}
+                    Unenroll
                   </button>
                 )}
               </Card.Body>
